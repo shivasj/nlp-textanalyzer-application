@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# This file contains environment variables required inside the docker
+# container for both development and production builds.
+export GOOGLE_PROJECT_ID="mlproject01-207413"
+export GOOGLE_APPLICATION_CREDENTIALS="/app/secrets/MLProject01-e861af7e93bf.json"
