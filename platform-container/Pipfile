@@ -1,0 +1,25 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+fastapi = "*"
+dataclasses = "*"
+requests = "*"
+uvicorn = "*"
+aiofiles = "*"
+bs4 = "*"
+celery = {extras = ["redis"],version = "*"}
+python-dateutil = "*"
+numpy = "==1.16.4"
+pandas = "==0.24.0"
+scikit-learn = "==0.21.3"
+nltk = "*"
+autocorrect = "*"
+gensim = "*"
+spacy = "*"
+fluent-logger = "==0.9.3"
+
+[requires]
+python_version = "3.6"
