@@ -19,6 +19,9 @@ The following commands are available:
     scheduler
         Run the Celery beat scheduler
 
+    notebook
+        Run jupyter notebook
+
 \033[0m
 "
 
@@ -36,9 +39,14 @@ scheduler() {
     celery -A worker.service beat --loglevel=info "$@"
 }
 
+notebook(){
+    jupyter notebook --notebook-dir='notebooks' --ip 0.0.0.0 --no-browser --allow-root
+}
+
 export -f webserver
 export -f worker
 export -f scheduler
+export -f notebook
 
 # Load environment file
 source environment.development
