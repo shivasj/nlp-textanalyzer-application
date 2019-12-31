@@ -115,9 +115,7 @@ venv.bak/
 scratch.txt
 /_test
 /secrets
-/datastore/blogs
-/datastore/cache
-/datastore/tti_data.db
+/datastore
 
 # These are files used by the Docker development image bind mount and should
 # not be committed
