@@ -1,8 +1,8 @@
 # Use the official Debian-hosted Python image
 FROM python:3.6.8-slim-stretch
 
-ARG EXTRA_PACKAGES=
-ARG PIPENV_ARGS=
+ARG EXTRA_PACKAGES=""
+ARG PIPENV_ARGS=""
 
 # Prevent apt from showing prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,8 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYENV_SHELL=/bin/bash
 
 # Ensure we have an up to date baseline, install dependencies and create a user
-# so we don't run the app as root. We also create man page directories because
-# update-alternatives is broken in slim.
+# so we don't run the app as root.
 RUN set -ex; \
     for i in $(seq 1 8); do mkdir -p "/usr/share/man/man${i}"; done && \
     apt-get update && \
@@ -36,6 +35,12 @@ WORKDIR /app
 # Install python packages
 ADD --chown=app:app Pipfile Pipfile.lock /app/
 RUN pipenv sync $PIPENV_ARGS
+
+# SPACY Download en
+RUN pipenv run python -m spacy download en
+
+# Jupyter notebook
+#RUN pipenv run python -m ipykernel install --user --name=taplatform
 
 # Add the rest of the source code. This is done last so we don't invalidate all
 # layers when we change a line of code.
