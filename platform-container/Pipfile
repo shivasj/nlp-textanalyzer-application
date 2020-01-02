@@ -21,6 +21,7 @@ gensim = "*"
 spacy = "*"
 fluent-logger = "==0.9.3"
 jupyter = "*"
+databases = {extras = ["sqlite"],version = "*"}
 
 [requires]
 python_version = "3.6"
