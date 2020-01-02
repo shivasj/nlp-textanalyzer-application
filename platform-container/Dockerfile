@@ -1,8 +1,8 @@
 # Use the official Debian-hosted Python image
 FROM python:3.6.8-slim-stretch
 
-ARG EXTRA_PACKAGES=""
-ARG PIPENV_ARGS=""
+ARG EXTRA_PACKAGES=
+ARG PIPENV_ARGS=
 
 # Prevent apt from showing prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -39,11 +39,11 @@ RUN pipenv sync $PIPENV_ARGS
 # SPACY Download en
 RUN pipenv run python -m spacy download en
 
-# Jupyter notebook
-#RUN pipenv run python -m ipykernel install --user --name=taplatform
-
 # Add the rest of the source code. This is done last so we don't invalidate all
 # layers when we change a line of code.
 ADD --chown=app:app . /app
+
+# Database setup
+#RUN pipenv run python -m dataaccess.setup
 
 ENTRYPOINT ["./scripts/docker-production-entrypoint.sh"]
