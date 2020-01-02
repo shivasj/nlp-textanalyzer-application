@@ -6,4 +6,4 @@
 source environment.shared
 
 export REDIS_URL="redis://redis:6379/0"
-
+export DATABASE_URL="datastore/app_data.db"
