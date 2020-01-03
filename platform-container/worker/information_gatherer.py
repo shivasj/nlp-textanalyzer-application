@@ -6,16 +6,71 @@ from dateutil import parser
 from bs4 import BeautifulSoup
 from bs4 import Comment
 from datetime import datetime
+import traceback
+
+from dataaccess import articles
 
 news_source = [
-    {'name': 'npr',
-     'URL': 'https://www.npr.org/sections/politics/',
-     'Checker': 'https://www.npr.org/',
-     'LINKS': {'div': 'h2', 'class': 'title'},
-     'TIME': {'div': 'span', 'class': 'date'},
-     'TITLE': {'div': 'h1', 'class': None},
-     'CONTENT': {'div': 'div', 'class': 'storytext storylocation linkLocation', 'p': 'p', 'pc': None}
-     }
+    {
+        'source': 'npr',
+        'URL': 'https://www.npr.org/sections/politics/',
+        'Checker': 'https://www.npr.org/',
+        'LINKS': {'div': 'h2', 'class': 'title'},
+        'TIME': {'div': 'span', 'class': 'date'},
+        'TITLE': {'div': 'h1', 'class': None},
+        'CONTENT': {'div': 'div', 'class': 'storytext storylocation linkLocation', 'p': 'p', 'pc': None},
+        "enabled": False
+     },
+    {
+        'source': 'washingtonpost',
+        'URL': 'https://www.washingtonpost.com/politics/',
+        'Checker': 'https://www.washingtonpost.com/',
+        'LINKS': {'div': 'h2', 'class': ''},
+        'TIME': {'div': 'div', 'class': 'display-date'},
+        'TITLE': {'div': 'h1', 'class': 'font--headline gray-darkest mb-sm null'},
+        'CONTENT': {'div': 'div', 'class': None, 'p': 'p', 'pc': None},
+        "enabled": False
+    },
+    {
+        'source': 'nymag',
+        'URL'    :'http://nymag.com/intelligencer/',
+        'Checker':'http://nymag.com/',
+        'LINKS'  :{'div':'div','class':'feed-container'},
+        'TIME'   :{'div':'span','class':'article-date'},
+        'TITLE'  :{'div':'h1','class':'headline-primary'},
+        'CONTENT':{'div':'div','class':'article-content inline','p':'p','pc':None},
+        "enabled": False
+    },
+    {
+        'source': 'cnn',
+        'URL'    :'https://edition.cnn.com/specials/last-50-stories',
+        'Checker':'https://edition.cnn.com/',
+        'LINKS'  :{'div':'h3','class':'cd__headline'},
+        'TIME'   :{'div':'p','class':'update-time'},
+        'TITLE'  :{'div':'h1','class':'pg-headline'},
+        'CONTENT':{'div':'div','class':'l-container','p':None,'pc':'zn-body__paragraph'},
+        "enabled": True
+    },
+    {
+        'source': 'thedailybeast',
+        'URL'    :'https://www.thedailybeast.com/category/politics',
+        'Checker':'https://www.thedailybeast.com/',
+        'LINKS'  :{'div':'div','class':'GridStory__title-link'},
+        'TIME'   :{'div':'span','class':'PublicationTime__date'},
+        'TITLE'  :{'div':'h1','class':'StandardHeader__title'},
+        'CONTENT':{'div':'div','class':'Mobiledoc','p':'p','pc':None},
+        "enabled": True
+    },
+    {
+        'source': 'politico',
+        'URL'    :'https://www.politico.com/news/2020-elections',
+        'Checker':'https://www.politico.com/',
+        'LINKS'  :{'div':'h1','class':None},
+        'TIME'   :{'div':'time','class':None},
+        'TITLE'  :{'div':'h2','class':'headline'},
+        'CONTENT':{'div':'div','class':'story-text','p':'p','pc':None},
+        "enabled": True
+    }
 ]
 
 
@@ -53,7 +108,7 @@ def find_links(dct):
 
 
 def scrape_page(link, dct):
-    ''' This Function is used to extract blogs information and print it to the terminal'''
+    ''' This Function is used to extract the page information and format it into a dictionary object'''
 
     # Request the page
     page = requests.get(r'{}'.format(link))
@@ -126,15 +181,24 @@ def gather_news_articles(dct):
             # Scrap the page
             article = scrape_page(link, dct)
             print(article)
-            print('\n\n\n')
+            print("********")
 
             # Save the news article
+            articles.create(id=article["id"],
+                            source=dct["source"],
+                            article_link=article["article_link"],
+                            article_date=article["article_date"],
+                            article_title=article["article_title"],
+                            article_content=article["article_content"],
+                            article_dts=12345)
 
-        except Exception as Error:
+        except Exception as e:
             print(link)
-            print(Error)
+            print(e)
+            print(traceback.format_exc())
 
 
 if __name__ == "__main__":
     for source in news_source:
-        gather_news_articles(source)
+        if source["enabled"]:
+            gather_news_articles(source)
