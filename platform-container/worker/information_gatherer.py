@@ -19,7 +19,7 @@ news_source = [
         'TIME': {'div': 'span', 'class': 'date'},
         'TITLE': {'div': 'h1', 'class': None},
         'CONTENT': {'div': 'div', 'class': 'storytext storylocation linkLocation', 'p': 'p', 'pc': None},
-        "enabled": False
+        "enabled": True
      },
     {
         'source': 'washingtonpost',
@@ -39,7 +39,7 @@ news_source = [
         'TIME'   :{'div':'span','class':'article-date'},
         'TITLE'  :{'div':'h1','class':'headline-primary'},
         'CONTENT':{'div':'div','class':'article-content inline','p':'p','pc':None},
-        "enabled": False
+        "enabled": True
     },
     {
         'source': 'cnn',
@@ -49,7 +49,7 @@ news_source = [
         'TIME'   :{'div':'p','class':'update-time'},
         'TITLE'  :{'div':'h1','class':'pg-headline'},
         'CONTENT':{'div':'div','class':'l-container','p':None,'pc':'zn-body__paragraph'},
-        "enabled": True
+        "enabled": False
     },
     {
         'source': 'thedailybeast',
@@ -92,7 +92,7 @@ def find_links(dct):
     page = requests.get(url, headers=headers)
     # Parsing
     soup = BeautifulSoup(page.content, 'html.parser')
-    # Extracting the blog links
+    # Extracting the news links
     for data in soup.find_all(details['div'], class_=details['class']):
         for a in data.find_all('a'):
             link = a.get('href')
@@ -103,7 +103,7 @@ def find_links(dct):
             if link != None and link not in links and link.startswith(Checker):
                 links.append(link)
     # Links Found
-    print("FOUND {} LINKS IN THIS BLOG ...".format(len(links)))
+    print("FOUND {} LINKS IN THIS PAGE ...".format(len(links)))
     return links
 
 
@@ -183,6 +183,11 @@ def gather_news_articles(dct):
             print(article)
             print("********")
 
+            try:
+                date_obj = parser.parse(article["article_date"])
+            except:
+                date_obj = parser.parse(article["article_date"][-17:])
+
             # Save the news article
             articles.create(id=article["id"],
                             source=dct["source"],
@@ -190,7 +195,7 @@ def gather_news_articles(dct):
                             article_date=article["article_date"],
                             article_title=article["article_title"],
                             article_content=article["article_content"],
-                            article_dts=12345)
+                            article_dts=date_obj.timestamp())
 
         except Exception as e:
             print(link)
