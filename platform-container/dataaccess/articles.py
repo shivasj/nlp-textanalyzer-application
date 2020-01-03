@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from datetime import datetime, timedelta
 
 from typing import Any, Dict, List
 
@@ -8,6 +9,7 @@ from dataaccess.session import database
 
 async def browse(
         *,
+        last_n_hours = None,
         page_number: int = 0,
         page_size: int = 20
 ) -> List[Dict[str, Any]]:
@@ -16,15 +18,26 @@ async def browse(
     """
 
 
-    sql = "select * from articles"
+    sql = "select * from articles where 1=1"
+
+    if last_n_hours is not None:
+        start_time = datetime.today() - timedelta(hours=12)
+        sql += " and article_dts >= "+ str(start_time.timestamp())
+
     sql += " order by article_dts desc"
-    sql += " limit "+str(page_size)
-    sql += " offset "+str(page_number * page_size)
+
+    if last_n_hours is None:
+        sql += " limit "+str(page_size)
+        sql += " offset "+str(page_number * page_size)
 
     print(sql)
-    result = await database.fetch_all(sql, values={})
 
-    return [dict(row) for row in result]
+    cursor = database.cursor()
+    cursor.execute('select * from stocks')
+
+    result = cursor.fetchall()
+
+    return result
 
 
 def create(*,
