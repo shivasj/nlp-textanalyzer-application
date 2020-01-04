@@ -26,8 +26,6 @@ The following commands are available:
 "
 
 webserver() {
-    # Note: we force lifespan to on to work around this bug in Starlette:
-    # https://github.com/encode/starlette/issues/486
     uvicorn api.service:app --reload --host 0.0.0.0 --port 9000 --lifespan on --log-level debug --reload-dir app "$@"
 }
 
