@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from bs4 import Comment
 from datetime import datetime
 import traceback
+import urllib.parse
 
 from dataaccess import articles
 
@@ -19,18 +20,10 @@ news_source = [
         'TIME': {'div': 'span', 'class': 'date'},
         'TITLE': {'div': 'h1', 'class': None},
         'CONTENT': {'div': 'div', 'class': 'storytext storylocation linkLocation', 'p': 'p', 'pc': None},
+        'time_selector': 'section time',
+        'content_selector': 'div.storytext.storylocation.linkLocation',
         "enabled": True
      },
-    {
-        'source': 'washingtonpost',
-        'URL': 'https://www.washingtonpost.com/politics/',
-        'Checker': 'https://www.washingtonpost.com/',
-        'LINKS': {'div': 'h2', 'class': ''},
-        'TIME': {'div': 'div', 'class': 'display-date'},
-        'TITLE': {'div': 'h1', 'class': 'font--headline gray-darkest mb-sm null'},
-        'CONTENT': {'div': 'div', 'class': None, 'p': 'p', 'pc': None},
-        "enabled": False
-    },
     {
         'source': 'nymag',
         'URL'    :'http://nymag.com/intelligencer/',
@@ -39,6 +32,8 @@ news_source = [
         'TIME'   :{'div':'span','class':'article-date'},
         'TITLE'  :{'div':'h1','class':'headline-primary'},
         'CONTENT':{'div':'div','class':'article-content inline','p':'p','pc':None},
+        'time_selector': 'header time',
+        'content_selector': 'section.body p',
         "enabled": True
     },
     {
@@ -49,7 +44,9 @@ news_source = [
         'TIME'   :{'div':'p','class':'update-time'},
         'TITLE'  :{'div':'h1','class':'pg-headline'},
         'CONTENT':{'div':'div','class':'l-container','p':None,'pc':'zn-body__paragraph'},
-        "enabled": False
+        'time_selector': 'p.update-time',
+        'content_selector': 'div.l-container div.pg-rail-tall__wrapper div.l-container .zn-body__paragraph',
+        "enabled": True
     },
     {
         'source': 'thedailybeast',
@@ -59,7 +56,9 @@ news_source = [
         'TIME'   :{'div':'span','class':'PublicationTime__date'},
         'TITLE'  :{'div':'h1','class':'StandardHeader__title'},
         'CONTENT':{'div':'div','class':'Mobiledoc','p':'p','pc':None},
-        "enabled": True
+        'time_selector': 'article time',
+        'content_selector': '',
+        "enabled": False
     },
     {
         'source': 'politico',
@@ -69,6 +68,8 @@ news_source = [
         'TIME'   :{'div':'time','class':None},
         'TITLE'  :{'div':'h2','class':'headline'},
         'CONTENT':{'div':'div','class':'story-text','p':'p','pc':None},
+        'time_selector': 'section time',
+        'content_selector': 'section div.story-text p',
         "enabled": True
     }
 ]
@@ -79,7 +80,12 @@ def generate_hash(string):
 
 
 def find_links(dct):
-    ''' This Function is used to find the links in a given site '''
+    """
+    This Function is used to find the links in a given site
+    :param dct:
+    :return:
+    """
+
     links = []
     # Extract blog informations
     url = dct['URL']
@@ -108,7 +114,12 @@ def find_links(dct):
 
 
 def scrape_page(link, dct):
-    ''' This Function is used to extract the page information and format it into a dictionary object'''
+    """
+    This Function is used to extract the page information and format it into a dictionary object
+    :param link:
+    :param dct:
+    :return:
+    """
 
     # Request the page
     page = requests.get(r'{}'.format(link))
@@ -121,25 +132,62 @@ def scrape_page(link, dct):
     title_details = dct['TITLE'] # Article title
     content_details = dct['CONTENT'] # Article content
 
+    time_selector = dct["time_selector"]
+    content_selector = dct['content_selector']
+
     # Get formated date
     #date = re.search(r'\w* \d*, \d\d\d\d', time).group(0)
 
     # Extract required information
-    time = soup.find(time_details['div'], class_=time_details['class']).text
+    time_elements = soup.select(time_selector)
+    if len(time_elements) > 0:
+        article_date = time_elements[0].get('datetime')
+        if article_date is None:
+            article_date = time_elements[0].text
+    else:
+        # default to today
+        article_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    #time = soup.find(time_details['div'], class_=time_details['class']).text
     title = soup.find(title_details['div'], class_=title_details['class']).text
 
     # Get the article body content
-    content = ''
-    for data in soup.find_all(content_details['div'], class_=content_details['class']):
-        # if content_details['pc'] is None:
-        #     for p in data.find_all(content_details['p']):
-        #         if p.text not in text:
-        #             text.append(p.text)  # for getting text
-        # else:
-        #     for p in data.find_all(content_details['p'], class_=content_details['pc']):
-        #         if p.text not in text:
-        #             text.append(p.text)  # for getting text
-        # content = '\n'.join(text)
+    article_content = ''
+    # for data in soup.find_all(content_details['div'], class_=content_details['class']):
+    #
+    #     if content_details['pc'] is not None:
+    #         for p_data in data.find_all(content_details['p'], class_=content_details['pc']):
+    #             # Remove unwanted tags
+    #             [x.extract() for x in data.find_all('script')]
+    #             [x.extract() for x in data.find_all('style')]
+    #             [x.extract() for x in data.find_all('meta')]
+    #             [x.extract() for x in data.find_all('noscript')]
+    #             [x.extract() for x in data.find_all('div', class_="image")]
+    #             [x.extract() for x in data.find_all(text=lambda text: isinstance(text, Comment))]
+    #
+    #             # Extract content text
+    #             content = data.get_text()
+    #             content = content.replace('\r', ' ').replace('\n', ' ')
+    #             # content = " ".join(content.split())
+    #             article_content += content + ' '
+    #     else:
+    #         # Remove unwanted tags
+    #         [x.extract() for x in data.find_all('script')]
+    #         [x.extract() for x in data.find_all('style')]
+    #         [x.extract() for x in data.find_all('meta')]
+    #         [x.extract() for x in data.find_all('noscript')]
+    #         [x.extract() for x in data.find_all('div', class_="image")]
+    #         [x.extract() for x in data.find_all(text=lambda text: isinstance(text, Comment))]
+    #
+    #         # Extract content text
+    #         content = data.get_text()
+    #         content = content.replace('\r', ' ').replace('\n', ' ')
+    #         #content = " ".join(content.split())
+    #         article_content += content + ' '
+
+    # Extracted data
+
+    for data in soup.select(content_selector):
 
         # Remove unwanted tags
         [x.extract() for x in data.find_all('script')]
@@ -152,15 +200,14 @@ def scrape_page(link, dct):
         # Extract content text
         content = data.get_text()
         content = content.replace('\r', ' ').replace('\n', ' ')
-        content = " ".join(content.split())
+        article_content += content + ' '
 
-    # Extracted data
     article = {
         "id": generate_hash(link),
         "article_link": link,
-        "article_date": time,
+        "article_date": article_date,
         "article_title": title,
-        "article_content": content
+        "article_content": article_content
     }
 
     return article
@@ -177,6 +224,7 @@ def gather_news_articles(dct):
     links = find_links(dct)
     # Find the data in each link
     for link in links:
+        print(link)
         try:
             # Scrap the page
             article = scrape_page(link, dct)
@@ -187,6 +235,8 @@ def gather_news_articles(dct):
                 date_obj = parser.parse(article["article_date"])
             except:
                 date_obj = parser.parse(article["article_date"][-17:])
+
+            print(date_obj.timestamp())
 
             # Save the news article
             articles.create(id=article["id"],
