@@ -36,6 +36,9 @@ WORKDIR /app
 ADD --chown=app:app Pipfile Pipfile.lock /app/
 RUN pipenv sync $PIPENV_ARGS
 
+# NLTK
+RUN pipenv run python -m nltk.downloader all
+
 # SPACY Download en
 RUN pipenv run python -m spacy download en
 
