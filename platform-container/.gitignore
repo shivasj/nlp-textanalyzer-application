@@ -116,6 +116,7 @@ venv.bak/
 scratch.txt
 /_test
 /secrets
+/datastore/app_data.db
 
 # These are files used by the Docker development image bind mount and should
 # not be committed
