@@ -14,61 +14,37 @@ from dataaccess import articles
 news_source = [
     {
         'source': 'npr',
-        'URL': 'https://www.npr.org/sections/politics/',
-        'Checker': 'https://www.npr.org/',
-        'LINKS': {'div': 'h2', 'class': 'title'},
-        'TIME': {'div': 'span', 'class': 'date'},
-        'TITLE': {'div': 'h1', 'class': None},
-        'CONTENT': {'div': 'div', 'class': 'storytext storylocation linkLocation', 'p': 'p', 'pc': None},
+        'url': 'https://www.npr.org/sections/politics/',
+        'link_selector': 'div.item-info-wrap h2.title a',
         'time_selector': 'section time',
+        'title_selector': 'div h1',
         'content_selector': 'div.storytext.storylocation.linkLocation',
-        "enabled": True
+        "enabled": False
      },
     {
-        'source': 'nymag',
-        'URL'    :'http://nymag.com/intelligencer/',
-        'Checker':'http://nymag.com/',
-        'LINKS'  :{'div':'div','class':'feed-container'},
-        'TIME'   :{'div':'span','class':'article-date'},
-        'TITLE'  :{'div':'h1','class':'headline-primary'},
-        'CONTENT':{'div':'div','class':'article-content inline','p':'p','pc':None},
+        'source' : 'nymag',
+        'url':'http://nymag.com/intelligencer/',
+        'link_selector': 'div.feed-container a.feed-item.article',
         'time_selector': 'header time',
+        'title_selector': 'h1.headline-primary',
         'content_selector': 'section.body p',
-        "enabled": True
+        "enabled": False
     },
     {
         'source': 'cnn',
-        'URL'    :'https://edition.cnn.com/specials/last-50-stories',
-        'Checker':'https://edition.cnn.com/',
-        'LINKS'  :{'div':'h3','class':'cd__headline'},
-        'TIME'   :{'div':'p','class':'update-time'},
-        'TITLE'  :{'div':'h1','class':'pg-headline'},
-        'CONTENT':{'div':'div','class':'l-container','p':None,'pc':'zn-body__paragraph'},
+        'url':'https://edition.cnn.com/specials/last-50-stories',
+        'link_selector': 'h3.cd__headline a',
         'time_selector': 'p.update-time',
+        'title_selector': 'h1.pg-headline',
         'content_selector': 'div.l-container div.pg-rail-tall__wrapper div.l-container .zn-body__paragraph',
-        "enabled": True
-    },
-    {
-        'source': 'thedailybeast',
-        'URL'    :'https://www.thedailybeast.com/category/politics',
-        'Checker':'https://www.thedailybeast.com/',
-        'LINKS'  :{'div':'div','class':'GridStory__title-link'},
-        'TIME'   :{'div':'span','class':'PublicationTime__date'},
-        'TITLE'  :{'div':'h1','class':'StandardHeader__title'},
-        'CONTENT':{'div':'div','class':'Mobiledoc','p':'p','pc':None},
-        'time_selector': 'article time',
-        'content_selector': '',
         "enabled": False
     },
     {
         'source': 'politico',
-        'URL'    :'https://www.politico.com/news/2020-elections',
-        'Checker':'https://www.politico.com/',
-        'LINKS'  :{'div':'h1','class':None},
-        'TIME'   :{'div':'time','class':None},
-        'TITLE'  :{'div':'h2','class':'headline'},
-        'CONTENT':{'div':'div','class':'story-text','p':'p','pc':None},
+        'url':'https://www.politico.com/news/2020-elections',
+        'link_selector': 'section h1 a',
         'time_selector': 'section time',
+        'title_selector': 'h2.headline',
         'content_selector': 'section div.story-text p',
         "enabled": True
     }
@@ -86,11 +62,12 @@ def find_links(dct):
     :return:
     """
 
-    links = []
-    # Extract blog informations
-    url = dct['URL']
-    details = dct['LINKS']
-    Checker = dct['Checker']
+    # Extract information
+    url = dct['url']
+    link_selector = dct['link_selector']
+
+    # details = dct['LINKS']
+    # Checker = dct['Checker']
     # Use headers to pass the authentication
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -98,19 +75,29 @@ def find_links(dct):
     page = requests.get(url, headers=headers)
     # Parsing
     soup = BeautifulSoup(page.content, 'html.parser')
-    # Extracting the news links
-    for data in soup.find_all(details['div'], class_=details['class']):
-        for a in data.find_all('a'):
-            link = a.get('href')
-            # This exception for CNN blog only
-            if dct['Checker'] == 'https://edition.cnn.com/':
-                link = 'https://edition.cnn.com{}'.format(link)
-            # This for all blogs
-            if link != None and link not in links and link.startswith(Checker):
-                links.append(link)
-    # Links Found
-    print("FOUND {} LINKS IN THIS PAGE ...".format(len(links)))
+
+    # Extract links
+    links = []
+    base_url = urllib.parse.urljoin(url, '.')
+    for a in soup.select(link_selector):
+        print(a.get('href'))
+        links.append(urllib.parse.urljoin(base_url, a.get('href')))
+
     return links
+
+    # # Extracting the news links
+    # for data in soup.find_all(details['div'], class_=details['class']):
+    #     for a in data.find_all('a'):
+    #         link = a.get('href')
+    #         # This exception for CNN blog only
+    #         if dct['Checker'] == 'https://edition.cnn.com/':
+    #             link = 'https://edition.cnn.com{}'.format(link)
+    #         # This for all blogs
+    #         if link != None and link not in links and link.startswith(Checker):
+    #             links.append(link)
+    # # Links Found
+    # print("FOUND {} LINKS IN THIS PAGE ...".format(len(links)))
+    # return links
 
 
 def scrape_page(link, dct):
@@ -128,11 +115,12 @@ def scrape_page(link, dct):
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Loading page information
-    time_details = dct['TIME'] # Article datetime
-    title_details = dct['TITLE'] # Article title
-    content_details = dct['CONTENT'] # Article content
+    # time_details = dct['TIME'] # Article datetime
+    # title_details = dct['TITLE'] # Article title
+    # content_details = dct['CONTENT'] # Article content
 
     time_selector = dct["time_selector"]
+    title_selector = dct["title_selector"]
     content_selector = dct['content_selector']
 
     # Get formated date
@@ -148,8 +136,14 @@ def scrape_page(link, dct):
         # default to today
         article_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+    # Title
+    article_title = ''
+    title_elements = soup.select(title_selector)
+    if len(title_elements) > 0:
+        article_title = title_elements[0].get_text()
+
     #time = soup.find(time_details['div'], class_=time_details['class']).text
-    title = soup.find(title_details['div'], class_=title_details['class']).text
+    #title = soup.find(title_details['div'], class_=title_details['class']).text
 
     # Get the article body content
     article_content = ''
@@ -206,7 +200,7 @@ def scrape_page(link, dct):
         "id": generate_hash(link),
         "article_link": link,
         "article_date": article_date,
-        "article_title": title,
+        "article_title": article_title,
         "article_content": article_content
     }
 
@@ -238,14 +232,15 @@ def gather_news_articles(dct):
 
             print(date_obj.timestamp())
 
-            # Save the news article
-            articles.create(id=article["id"],
-                            source=dct["source"],
-                            article_link=article["article_link"],
-                            article_date=article["article_date"],
-                            article_title=article["article_title"],
-                            article_content=article["article_content"],
-                            article_dts=date_obj.timestamp())
+            if (article["article_title"] != '') and (article["article_content"] != ''):
+                # Save the news article
+                articles.create(id=article["id"],
+                                source=dct["source"],
+                                article_link=article["article_link"],
+                                article_date=article["article_date"],
+                                article_title=article["article_title"],
+                                article_content=article["article_content"],
+                                article_dts=date_obj.timestamp())
 
         except Exception as e:
             print(link)
