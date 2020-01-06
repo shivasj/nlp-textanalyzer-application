@@ -6,7 +6,18 @@ if __name__ == "__main__":
 
     cursor = database.cursor()
 
-    # News
+    # News Source
+    sql = """
+            CREATE TABLE IF NOT EXISTS article_sources(
+                source TEXT PRIMARY KEY NOT NULL,
+                url TEXT NOT NULL,
+                link_selector TEXT NOT NULL,
+                time_selector TEXT NOT NULL,
+                title_selector TEXT NOT NULL,
+                content_selector TEXT NOT NULL,
+                enabled INTEGER NOT NULL
+            );
+    """
 
     # Articles Table
     sql = """
