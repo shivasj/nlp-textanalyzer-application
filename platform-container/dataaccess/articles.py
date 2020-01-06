@@ -4,12 +4,17 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from typing import Any, Dict, List
+from gensim.summarization import summarize as summarize_text
 
 from dataaccess.session import database
 
 async def browse(
         *,
-        last_n_hours = None,
+        summarize: bool = False,
+        summarize_ratio: float = 0.3,
+        summarize_word_count: int = None,
+        day: int = 0,
+        hours: int = None,
         page_number: int = 0,
         page_size: int = 20
 ) -> List[Dict[str, Any]]:
@@ -20,24 +25,33 @@ async def browse(
 
     sql = "select * from articles where 1=1"
 
-    if last_n_hours is not None:
-        start_time = datetime.today() - timedelta(hours=12)
+    if hours is not None:
+        today = datetime.today()
+        end_time = today - timedelta(days=day)
+
+        start_time = end_time - timedelta(hours=hours)
+
+
         sql += " and article_dts >= "+ str(start_time.timestamp())
+        sql += " and article_dts <= " + str(end_time.timestamp())
 
     sql += " order by article_dts desc"
 
-    if last_n_hours is None:
+    if hours is None:
         sql += " limit "+str(page_size)
         sql += " offset "+str(page_number * page_size)
 
     print(sql)
+    rows = pd.read_sql_query(sql, database)
 
-    cursor = database.cursor()
-    cursor.execute('select * from stocks')
+    # Summarize
+    if summarize:
+        def generate_summary(text):
+            return summarize_text(text, ratio=summarize_ratio, word_count=summarize_word_count)
 
-    result = cursor.fetchall()
+        rows['article_content'] = rows['article_content'].apply(generate_summary)
 
-    return result
+    return rows.to_dict('records')
 
 
 def create(*,
