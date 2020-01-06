@@ -9,8 +9,8 @@ const DataServices = {
     Init: function(){
         // Any application initialization logic comes here
     },
-    GetArticles : async function(){
-        return await axios.get(BASE_API_URL+"/articles");
+    GetArticles : async function(day,hours, summarize_ratio, summarize_word_count){
+        return await axios.get(BASE_API_URL+"/articles?summarize=true&day="+day+"&hours="+hours+"&summarize_ratio="+summarize_ratio+"&summarize_word_count="+summarize_word_count);
     }
 }
 
