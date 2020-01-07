@@ -1,7 +1,6 @@
 import os
 import requests
 import hashlib
-import csv,re,json,time,sys
 from dateutil import parser
 from bs4 import BeautifulSoup
 from bs4 import Comment
@@ -9,7 +8,7 @@ from datetime import datetime
 import traceback
 import urllib.parse
 import asyncio
-import functools
+
 
 from dataaccess import articles, article_sources
 
