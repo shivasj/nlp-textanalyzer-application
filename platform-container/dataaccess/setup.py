@@ -18,6 +18,8 @@ if __name__ == "__main__":
                 enabled INTEGER NOT NULL
             );
     """
+    print(sql)
+    cursor.execute(sql)
 
     # Articles Table
     sql = """
