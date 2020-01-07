@@ -8,8 +8,10 @@ from bs4 import Comment
 from datetime import datetime
 import traceback
 import urllib.parse
+import asyncio
+import functools
 
-from dataaccess import articles
+from dataaccess import articles, article_sources
 
 news_source = [
     {
@@ -19,7 +21,7 @@ news_source = [
         'time_selector': 'section time',
         'title_selector': 'div h1',
         'content_selector': 'div.storytext.storylocation.linkLocation',
-        "enabled": False
+        "enabled": True
      },
     {
         'source' : 'nymag',
@@ -28,7 +30,7 @@ news_source = [
         'time_selector': 'header time',
         'title_selector': 'h1.headline-primary',
         'content_selector': 'section.body p',
-        "enabled": False
+        "enabled": True
     },
     {
         'source': 'cnn',
@@ -37,7 +39,7 @@ news_source = [
         'time_selector': 'p.update-time',
         'title_selector': 'h1.pg-headline',
         'content_selector': 'div.l-container div.pg-rail-tall__wrapper div.l-container .zn-body__paragraph',
-        "enabled": False
+        "enabled": True
     },
     {
         'source': 'politico',
@@ -247,8 +249,17 @@ def gather_news_articles(dct):
             print(e)
             print(traceback.format_exc())
 
-
-if __name__ == "__main__":
-    for source in news_source:
+def run():
+    # Get the article sources
+    loop = asyncio.get_event_loop()
+    news_list = loop.run_until_complete(article_sources.browse())
+    print(news_list)
+    for source in news_list:
         if source["enabled"]:
             gather_news_articles(source)
+
+if __name__ == "__main__":
+    run()
+    # for source in news_source:
+    #     if source["enabled"]:
+    #         gather_news_articles(source)
