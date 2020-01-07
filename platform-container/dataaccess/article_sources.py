@@ -21,7 +21,7 @@ async def browse() -> List[Dict[str, Any]]:
     return rows.to_dict('records')
 
 
-def create(*,
+async def create(*,
            source: str,
            url: str,
            link_selector: str,
