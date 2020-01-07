@@ -36,3 +36,15 @@ if __name__ == "__main__":
 
     print(sql)
     cursor.execute(sql)
+
+    # Named Entity
+    sql = """
+                CREATE TABLE IF NOT EXISTS named_entities(
+                    source TEXT PRIMARY KEY NOT NULL,
+                    name TEXT NOT NULL,
+                    entity TEXT NOT NULL,
+                    day_dts INTEGER NOT NULL
+                );
+        """
+    print(sql)
+    cursor.execute(sql)
