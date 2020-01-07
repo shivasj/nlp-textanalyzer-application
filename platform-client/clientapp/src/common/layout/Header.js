@@ -149,9 +149,9 @@ const Header = props => {
                         </List>
                         <Divider />
                         <List>
-                            <ListItem button key='menuitem1' component={Link} to="/dashboard">
-                                <ListItemIcon><Icon>clear</Icon></ListItemIcon>
-                                <ListItemText primary='Menu Item' />
+                            <ListItem button key='menuitem1' component={Link} to="/article_sources">
+                                <ListItemIcon><Icon>list_alt</Icon></ListItemIcon>
+                                <ListItemText primary='Article Sources' />
                             </ListItem>
                             <ListItem button key='menuitem12' component={Link} to="/dashboard">
                                 <ListItemIcon><Icon>settings_applications</Icon></ListItemIcon>
