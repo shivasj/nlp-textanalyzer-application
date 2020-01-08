@@ -4,7 +4,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
-from api.routers import articles, artilce_sources
+from api.routers import articles, artilce_sources, named_entities
 
 
 prefix = "/api/v1"
@@ -60,5 +60,6 @@ async def get_index():
 # Additional routers here
 app.include_router(articles.router, prefix=prefix)
 app.include_router(artilce_sources.router, prefix=prefix)
+app.include_router(named_entities.router, prefix=prefix)
 
 app.mount("/", StaticFiles(directory="web", html=True), name="web")
