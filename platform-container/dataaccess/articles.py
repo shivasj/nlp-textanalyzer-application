@@ -26,7 +26,7 @@ async def browse(
     sql = "select * from articles where 1=1"
 
     if hours is not None:
-        today = datetime.today()
+        today = datetime.today() + timedelta(days=1)
         end_time = datetime(today.year, today.month, today.day, 0, 0) - timedelta(days=day)
         start_time = end_time - timedelta(hours=hours)
 
