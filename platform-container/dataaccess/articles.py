@@ -27,8 +27,7 @@ async def browse(
 
     if hours is not None:
         today = datetime.today()
-        end_time = today - timedelta(days=day)
-
+        end_time = datetime(today.year, today.month, today.day, 0, 0) - timedelta(days=day)
         start_time = end_time - timedelta(hours=hours)
 
 
