@@ -106,7 +106,7 @@ const Home = ( props ) => {
                 console.log(response);
                 setTopLocationList(response.data);
             })
-    }, [day,hours]);
+    }, [day,hours,summarizeWordCount,summarizeRatio]);
 
 
     function formatArticleContent(article_content,article_url) {
@@ -186,7 +186,7 @@ const Home = ( props ) => {
                                 </List>
                             </div>
                             <div>
-                                <List subheader={<ListSubheader>Top Organization</ListSubheader>}>
+                                <List subheader={<ListSubheader>Top Organizations</ListSubheader>}>
                                     {
                                         topOrgList && topOrgList.map((row,index) => (
                                             <ListItem key={index}>
@@ -197,7 +197,7 @@ const Home = ( props ) => {
                                 </List>
                             </div>
                             <div>
-                                <List subheader={<ListSubheader>Top Group</ListSubheader>}>
+                                <List subheader={<ListSubheader>Top Groups</ListSubheader>}>
                                     {
                                         topGroupList && topGroupList.map((row,index) => (
                                             <ListItem key={index}>
@@ -208,7 +208,7 @@ const Home = ( props ) => {
                                 </List>
                             </div>
                             <div>
-                                <List subheader={<ListSubheader>Top Location</ListSubheader>}>
+                                <List subheader={<ListSubheader>Top Locations</ListSubheader>}>
                                     {
                                         topLocationList && topLocationList.map((row,index) => (
                                             <ListItem key={index}>

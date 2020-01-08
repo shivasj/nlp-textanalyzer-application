@@ -155,7 +155,7 @@ const Header = props => {
                             </ListItem>
                             <ListItem button key='menuitem12' component={Link} to="/dashboard">
                                 <ListItemIcon><Icon>settings_applications</Icon></ListItemIcon>
-                                <ListItemText primary='Menu Item' />
+                                <ListItemText primary='Settings' />
                             </ListItem>
                         </List>
                     </div>

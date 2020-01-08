@@ -175,7 +175,7 @@ const ArticleSources = ( props ) => {
                                                 <TableCell>{row.enabled?"True":"False"}</TableCell>
                                                 <TableCell>
                                                     <Button className={classes.button} onClick={() => EditArticleSource(row)}>
-                                                        <Icon>save</Icon>
+                                                        <Icon>edit</Icon>
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
