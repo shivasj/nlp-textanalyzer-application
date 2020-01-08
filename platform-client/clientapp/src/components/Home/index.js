@@ -3,13 +3,17 @@ import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Badge from '@material-ui/core/Badge';
 
 import moment from 'moment';
 import _ from 'lodash';
@@ -69,6 +73,11 @@ const Home = ( props ) => {
     const [summarizeRatio, setSummarizeRatio] = useState(0.10);
     const [summarizeWordCount, setSummarizeWordCount] = useState(75);
     const [articles, setArticles] = useState(null);
+    const [topCount, setTopCount] = useState(5);
+    const [topPersonList, setTopPersonList] = useState(null);
+    const [topGroupList, setTopGroupList] = useState(null);
+    const [topOrgList, setTopOrgList] = useState(null);
+    const [topLocationList, setTopLocationList] = useState(null);
 
     // Load data
     useEffect(() => {
@@ -77,7 +86,27 @@ const Home = ( props ) => {
                 console.log(response);
                 setArticles(response.data);
             })
-    }, [day,hours, summarizeRatio, summarizeWordCount]);
+        DataServices.GetTopEntities('PERSON',day, hours,topCount)
+            .then(function (response) {
+                console.log(response);
+                setTopPersonList(response.data);
+            })
+        DataServices.GetTopEntities('NORP',day, hours,topCount)
+            .then(function (response) {
+                console.log(response);
+                setTopGroupList(response.data);
+            })
+        DataServices.GetTopEntities('ORG',day, hours,topCount)
+            .then(function (response) {
+                console.log(response);
+                setTopOrgList(response.data);
+            })
+        DataServices.GetTopEntities('GPE',day, hours,topCount)
+            .then(function (response) {
+                console.log(response);
+                setTopLocationList(response.data);
+            })
+    }, [day,hours]);
 
 
     function formatArticleContent(article_content,article_url) {
@@ -144,7 +173,52 @@ const Home = ( props ) => {
 
                 <Grid container spacing={3} className={classes.gridContainer}>
                     <Grid item md={2} xs={12} >
-                        Left Panel...
+                        <div style={{ backgroundColor: '#ffffff' }}>
+                            <div>
+                                <List subheader={<ListSubheader>Top People</ListSubheader>}>
+                                    {
+                                        topPersonList && topPersonList.map((row,index) => (
+                                            <ListItem key={index}>
+                                                {row["name"]}&nbsp;({row["count"]})
+                                            </ListItem>
+                                        ))
+                                    }
+                                </List>
+                            </div>
+                            <div>
+                                <List subheader={<ListSubheader>Top Organization</ListSubheader>}>
+                                    {
+                                        topOrgList && topOrgList.map((row,index) => (
+                                            <ListItem key={index}>
+                                                {row["name"]}&nbsp;({row["count"]})
+                                            </ListItem>
+                                        ))
+                                    }
+                                </List>
+                            </div>
+                            <div>
+                                <List subheader={<ListSubheader>Top Group</ListSubheader>}>
+                                    {
+                                        topGroupList && topGroupList.map((row,index) => (
+                                            <ListItem key={index}>
+                                                {row["name"]}&nbsp;({row["count"]})
+                                            </ListItem>
+                                        ))
+                                    }
+                                </List>
+                            </div>
+                            <div>
+                                <List subheader={<ListSubheader>Top Location</ListSubheader>}>
+                                    {
+                                        topLocationList && topLocationList.map((row,index) => (
+                                            <ListItem key={index}>
+                                                {row["name"]}&nbsp;({row["count"]})
+                                            </ListItem>
+                                        ))
+                                    }
+                                </List>
+                            </div>
+                        </div>
                     </Grid>
                     <Grid item md={10} xs={12} >
 

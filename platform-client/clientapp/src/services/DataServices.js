@@ -17,6 +17,9 @@ const DataServices = {
     },
     SaveArticleSource : async function(obj){
         return await axios.post(BASE_API_URL+"/article_sources",obj);
+    },
+    GetTopEntities : async function(entity,day,hours,top){
+        return await axios.get(BASE_API_URL+"/browse_by_entity?day="+day+"&hours="+hours+"&entity="+entity+"&top="+top);
     }
 }
 
