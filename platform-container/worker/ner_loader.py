@@ -14,7 +14,7 @@ def run():
 
     # Generate NER
     loop = asyncio.get_event_loop()
-    articles_list = loop.run_until_complete(articles.browse(hours=120))
+    articles_list = loop.run_until_complete(articles.browse(hours=240))
     ner_list = []
     for article in articles_list:
         # Merge title with content
